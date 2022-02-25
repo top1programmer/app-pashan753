@@ -1,6 +1,5 @@
 import { useState } from "react"
 import * as Bootstrap from 'react-bootstrap';
-// import StarRatingComponent from 'react-star-rating-component';
 import ReactStars from "react-rating-stars-component";
 
 export const ReviewBlock = () => {
