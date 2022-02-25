@@ -4,6 +4,8 @@ import FacebookLogin from 'react-facebook-login';
 import { useState } from 'react';
 import * as Bootstrap from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import {ReviewBlock} from './components/review-block'
+import './style/style.css'
 
 function App() {
   const [loginData, setLoginData] = useState(
@@ -79,6 +81,7 @@ function App() {
       </Bootstrap.Navbar.Collapse>
       </Bootstrap.Container>
       </Bootstrap.Navbar>
+      <ReviewBlock/>
       <button onClick={getit}>aaaa</button>
     </Bootstrap.Container>
   </div>

@@ -1,0 +1,25 @@
+.reviewBlock{
+  width: 80%;
+  border: 2px solid #e8e7e6;
+  border-radius: 15px;
+  justify-content: space-between;
+  text-align: left;
+}
+.review-header{
+  display: flex;
+  justify-content: space-between;
+}
+.reviewBlock img{
+
+  max-width: 250px;
+}
+
+.review-images{
+  display: flex;
+}
+
+@media screen and (max-width: 1200px) {
+  .review-images{
+    flex-direction: column;
+  }
+}
