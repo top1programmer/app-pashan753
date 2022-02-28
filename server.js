@@ -45,12 +45,18 @@ app.post('/api/google-login', async (req, res) => {
   res.json({ name, email, picture });
 });
 
-app.post('/api/getitems', async (req, res)=>{
+app.post('/api/get-reviews', async (req, res)=>{
+  await connection.query("SELECT * FROM review",
+  function(err, results, fields) {
+    res.json({result: results})
+  });
+})
+
+app.post('/api/get-users', async (req, res)=>{
   connection.query("SELECT * FROM local_user",
   function(err, results, fields) {
     res.json({result: results})
   });
-
 })
 
 app.use(express.static(path.join(__dirname, '/build')));

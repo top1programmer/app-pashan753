@@ -1,31 +1,35 @@
-import { useState } from "react"
+import { useState, useContext, useEffect } from "react"
 import * as Bootstrap from 'react-bootstrap';
 import ReactStars from "react-rating-stars-component";
+import { Context } from './context'
 
-export const ReviewBlock = () => {
+export const ReviewBlock = (props) => {
+  const { isAuthenticated} = useContext(Context)
   const [rating, setRating] = useState(0)
-
   const onStarClick = (newRating) => {
     setRating(newRating)
   }
+  useEffect(() => {
 
+  }, [props.isAuthenticated])
+  console.log('rev',props.isAuthenticated);
   return (
   <Bootstrap.Container className='reviewBlock'>
       <div className="review-header">
-        <h3>hello</h3>
+        <h3>{props.name}</h3>
       <div>
       <ReactStars
           className="rating"
           count={5}
+          value={props.rate}
           onChange={onStarClick}
+          edit={props.isAuthenticated}
           size={25}
           activeColor="#ffd700"
         />
       </div>
       </div>
-      <p>asudghuasgyahcy7qwpctnpw8avcuoa c84ycvn8awpynvcuiagggggggg gggggggggg gggggggggggggggg
-      aaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaa
-      xxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxx</p>
+      <p>{props.text}</p>
       <div>tags</div>
       <Bootstrap.Row className='review-images'>
       <Bootstrap.Image
