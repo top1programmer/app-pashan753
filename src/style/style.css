@@ -4,19 +4,33 @@
   border-radius: 15px;
   justify-content: space-between;
   text-align: left;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
 }
 .review-header{
   display: flex;
   justify-content: space-between;
 }
 .reviewBlock img{
-
   max-width: 250px;
+  width: 30%;
+  height: auto;
+  margin-right: 3%;
+}
+.reviewBlock input{
+  max-width: 80%;
 }
 
-.review-images{
-  display: flex;
+.dark{
+  color: #9B9D9E;
+  background-color: #212529;
 }
+
+.app.dark + .reviewBlock{
+    border: 2px solid red;
+}
+
+
 
 @media screen and (max-width: 1200px) {
   .review-images{

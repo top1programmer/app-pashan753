@@ -46,10 +46,33 @@ app.post('/api/google-login', async (req, res) => {
 });
 
 app.post('/api/get-reviews', async (req, res)=>{
-  await connection.query("SELECT * FROM review",
+  if(req.body.email){
+    connection.query(`select w.* from review w join local_user lu on lu.id=w.user_id and lu.email = "${req.body.email}"`,
+    function(err, results, fields) {
+      console.log(results);
+      res.json({result: results})
+    });
+  } else
+  connection.query("SELECT * FROM review",
   function(err, results, fields) {
     res.json({result: results})
   });
+})
+
+app.post('/api/like', async (req, res) => {
+  const sql = `INSERT INTO likes(user_id, review_id) VALUES(${req.body.id}, ${req.body.user_id})`;
+connection.query(sql, function(err, results) {
+    if(err) console.log(err);
+    else console.log("Тaaаблица создана");
+  })
+})
+
+app.post('/api/save', async (req, res) => {
+  connection.query(`UPDATE review SET name="${req.body.name}", text="${req.body.text}" WHERE id="${req.body.id}"`,
+   function(err, results) {
+      if(err) console.log(err);
+      else console.log("Тaaаблица создана");
+    })
 })
 
 app.post('/api/get-users', async (req, res)=>{
@@ -61,8 +84,7 @@ app.post('/api/get-users', async (req, res)=>{
 
 app.use(express.static(path.join(__dirname, '/build')));
 app.get('*', (req, res) =>
-  res.sendFile(path.join(__dirname, '/build/index.html'))
-);
+  res.sendFile(path.join(__dirname, '/build/index.html')));
 
 app.listen(process.env.PORT || 5000, () => {
   console.log(

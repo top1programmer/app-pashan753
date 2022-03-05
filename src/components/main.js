@@ -4,8 +4,8 @@ import { ReviewBlock } from './review-block'
 
 export const Main = ( ) => {
 
-  const {isAuthenticated} = useContext(Context)
-  const [allReviews, setAllReviews] = useState([])
+  const {state} = useContext(Context)
+  const [reviews, setReviews] = useState([])
 
   const getReviews = async () => {
     const response = await fetch('/api/get-reviews', {
@@ -13,17 +13,20 @@ export const Main = ( ) => {
       headers: {
         'Content-Type': 'application/json'
       },
-    }).then(res => res.json()).then(data => setAllReviews(data.result));
+    }).then(res => res.json()).then(data => setReviews(data.result));
   }
-   if(allReviews.length == 0)
+  console.log(reviews);
+   if(reviews.length == 0)
     getReviews()
-    console.log('main', isAuthenticated);
-  const dataToShow = allReviews.map( item => (
+  const dataToShow = reviews.map( item => (
     <ReviewBlock
+      key={item.id}
+      id={item.id}
+      user_id={item.user_id}
       name={item.name}
       text={item.text}
       rate={item.rate}
-      isAuthenticated={isAuthenticated}
+      isAuthenticated={state.isAuthenticated}
     />
   ))
   return (

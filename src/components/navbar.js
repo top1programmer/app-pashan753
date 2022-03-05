@@ -1,12 +1,13 @@
 import GoogleLogin from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
 import { useState, useContext } from 'react';
-import { Navbar, Nav, Container, Row, Col} from 'react-bootstrap';
+import { Navbar, Nav, Container, Row, Col, Form} from 'react-bootstrap';
+import BootstrapSwitchButton from 'bootstrap-switch-button-react'
 import { Context } from './context'
 
  export const NavbarComponent = () => {
 
-  const { isAuthenticated, login } = useContext(Context)
+  const { state, setState  } = useContext(Context);
   const [loginData, setLoginData] = useState(
     localStorage.getItem('loginData')
     ? JSON.parse(localStorage.getItem('loginData'))
@@ -29,11 +30,12 @@ import { Context } from './context'
     const data = await res.json();
 
     setLoginData(data);
-    login(true)
+    setState(prevState => ({ ...prevState, isAuthenticated: true, email: data.email }))
     localStorage.setItem('loginData', JSON.stringify(data));
   };
 
   const handleLogout = () => {
+    setState({ isAuthenticated: false });
     localStorage.removeItem('loginData');
     setLoginData(null);
   };
@@ -42,27 +44,37 @@ import { Context } from './context'
     //  console.log(response)
   }
   return  (
-    <Navbar  bg="light" variant="light">
+    <Navbar  bg={state.theme}  variant={state.theme}>
       <Container>
         <Nav className="me-auto">
             <Nav.Item as="li">
-              <Nav.Link href="#home">Home</Nav.Link>
+              <Nav.Link href="/">Home</Nav.Link>
             </Nav.Item>
             <Nav.Item as="li">
-              <Nav.Link href="#features">Features</Nav.Link>
+              <Nav.Link href="/reviews">My revies</Nav.Link>
             </Nav.Item>
             <Nav.Item as="li">
-              <Nav.Link href="#pricing">Pricing</Nav.Link>
+              <Form.Control placeholder="search" />
             </Nav.Item>
           </Nav>
           <Nav>
               {loginData ? (
                 <>
-                  <Nav.Item>
+                <BootstrapSwitchButton
+                  checked={false}
+                  onlabel='Light'
+                  offlabel='Dark'
+                  onstyle="dark"
+                  offstyle="light"
+                  style="border"
+                  width={100}
+                  onChange={(checked: boolean) => {
+                      setState(prevState =>  ({ ...prevState, theme: checked? "dark" : "light" }))
+                  }}
+                />
                     <Navbar.Text>
-                    Signed in as : {loginData.email}
+                      Signed in as : {loginData.email}
                     </Navbar.Text>
-                  </Nav.Item>
                   <Nav.Item>
                     <Nav.Link
                       href="#pricing"
