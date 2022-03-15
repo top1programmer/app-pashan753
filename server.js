@@ -13,14 +13,14 @@ const connection = mysql.createConnection({
   database: "heroku_09d6caf22145169",
   password: "a0fe488d"
 });
-// connection.connect(function(err){
-//   if (err) {
-//     return console.error("Ошибка: " + err.message);
-//   }
-//   else{
-//     console.log("Подключение к серверу MySQL успешно установлено");
-//   }
-// });
+connection.connect(function(err){
+  if (err) {
+    return console.error("Ошибка: " + err.message);
+  }
+  else{
+    console.log("Подключение к серверу MySQL успешно установлено");
+  }
+});
 //connection.end();
 
 const app = express();

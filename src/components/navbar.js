@@ -44,7 +44,7 @@ import { Context } from './context'
 
   const handleLogout = () => {
     setState(prevState => ({ ...prevState, user_id: '',
-     isAuthenticated: false, email: '' }))
+     isAuthenticated: false, email: '', role: 'user' }))
     localStorage.removeItem('context');
     //localStorage.setItem('context', JSON.stringify(state));
     localStorage.removeItem('loginData');
@@ -78,12 +78,12 @@ import { Context } from './context'
     <Navbar  bg={state.theme}  variant={state.theme}>
       <Container>
         <Nav className="me-auto">
-            <Nav.Item as="li">
+            {state.role !== 'admin' && <><Nav.Item as="li">
               <Nav.Link href="/">Home</Nav.Link>
             </Nav.Item>
             <Nav.Item as="li">
               <Nav.Link href="/reviews">My revies</Nav.Link>
-            </Nav.Item>
+            </Nav.Item></>}
             <Nav.Item as="li">
             <InputGroup className="mb-3">
               <Form.Control placeholder="search" />

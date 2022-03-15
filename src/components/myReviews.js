@@ -2,6 +2,8 @@ import { useState, useContext } from 'react'
 import { Context } from './context'
 import { ReviewBlock } from './review-block'
 import { EditableReview } from './editable-review'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {  faArrowLeft, faPlus  } from '@fortawesome/free-solid-svg-icons'
 import { useParams, useNavigate } from "react-router-dom";
 
 export const MyReviews = () => {
@@ -65,8 +67,18 @@ export const MyReviews = () => {
   ))
   return (
     <div>
-      {userEmail !== undefined && <button onClick={() => history('/')}>back</button>}
-      <button onClick={changeVisibility}>+</button>
+    <div style={{position: 'absolute', width: '80%',display: 'flex', justifyContent: 'space-between'}}>
+      {userEmail !== undefined &&
+          <FontAwesomeIcon
+            className='backToAdminBtn'
+            onClick ={() => history('/')}
+            icon={faArrowLeft} />}
+            <FontAwesomeIcon
+              className='backToAdminBtn'
+              onClick={changeVisibility}
+              icon={faPlus} />
+      
+      </div>
       <div style={{display: isVisible}}>
         <EditableReview
           create={state.email}
