@@ -26,8 +26,8 @@
   background-color: #212529;
 }
 
-.app.dark + .reviewBlock{
-    border: 2px solid red;
+a{
+  text-decoration:none;
 }
 
 
@@ -36,4 +36,18 @@
   .review-images{
     flex-direction: column;
   }
+}
+
+.none{
+  display: none;
+  color: inherit;
+}
+
+.vivible{
+  display: block;
+}
+
+.loginbtn{
+  max-width: 200px;
+  max-height: 30px;
 }

@@ -11,12 +11,17 @@ export const ReviewBlock = (props) => {
   const { state } = useContext(Context)
   const [rating, setRating] = useState(props.rate)
   const [edit, setEdit] = useState(false)
-  useEffect(()=> {console.log('aa');}, [state.isAuthenticated])
+  const [isLiked, setIsLiked] = useState(props.count_likes == 0? false : true)
+  console.log('item rerendered');
+  console.log(props.isAuthenticated);
+  useEffect(()=> {
+  }, [props.isAuthenticated])
   const onStarClick = (newRating) => {
     setRating(newRating)
   }
-
   const handleLike = async () => {
+    const tempState = isLiked
+    setIsLiked(!isLiked)
     const request = await fetch('/api/like', {
       method: 'POST',
       headers: {
@@ -24,12 +29,43 @@ export const ReviewBlock = (props) => {
       },
       body:  JSON.stringify(
         {
-        id: props.id,
-        user_id: props.user_id
+        review_id: props.id,
+        user_id: props.user_id,
+        isLiked: tempState,
       }
     )
     })
+    console.log(isLiked);
+
   }
+
+
+  let stars = {
+    className:"rating",
+    count: 5,
+    value: rating,
+    onChange: onStarClick,
+    edit: props.isAuthenticated? true: false,
+    size: 25,
+    activeColor: "#ffd700"
+
+  };
+
+  // <ReactStars
+  //     className="rating"
+  //     count={5}
+  //     value={rating}
+  //     onChange={onStarClick}
+  //     edit={props.isAuthenticated}
+  //     size={25}
+  //     activeColor="#ffd700"
+  //   />
+  let imagesToRender = props.img_source.map(item => (
+    <Image
+      fluid={true}
+      rounded={true}
+      src={item}/>
+  ))
   return (
     <>
     { !edit ?
@@ -38,18 +74,11 @@ export const ReviewBlock = (props) => {
           <h3>{props.name}</h3>
           <div style={{display: "flex"}}>
             <FontAwesomeIcon
+              style={{color: isLiked? 'red' : 'gray'}}
               onClick={handleLike}
               className='red-color'
               icon={  faHeart} />
-            <ReactStars
-                className="rating"
-                count={5}
-                value={rating}
-                onChange={onStarClick}
-                edit={state.isAuthenticated}
-                size={25}
-                activeColor="#ffd700"
-              />
+            <ReactStars {...stars}       />
               { props.editable ?
                 (<FontAwesomeIcon
                     style={{color: '#505'}}
@@ -61,17 +90,16 @@ export const ReviewBlock = (props) => {
         <MDEditor.Markdown source={props.text} />
         <div>tags</div>
         <div className='review-images'>
-          <Image
-            fluid={true}
-            rounded={true}
-            src={'https://www.codeproject.com/KB/GDI-plus/ImageProcessing2/img.jpg'}/>
-          <Image src={'https://www.codeproject.com/KB/GDI-plus/ImageProcessing2/img.jpg'}/>
-          <Image src={'https://www.codeproject.com/KB/GDI-plus/ImageProcessing2/img.jpg'}/>
+          {imagesToRender}
         </div>
     </Container>) : (
       <EditableReview
         setEdit={setEdit}
-        args={props}/>
+        id={props.id}
+        name={props.name}
+        text={props.text}
+        rate={props.rate}
+        />
     )}
     </>
   );

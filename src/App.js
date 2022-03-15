@@ -7,32 +7,33 @@ import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import { Context } from './components/context'
 import { Main } from './components/main'
 import { MyReviews } from './components/myReviews'
+import { AdminPanel } from './components/adminPanel'
 import './style/style.css'
 
 function App() {
-  const [state, setState] = useState({
-    email: JSON.parse(localStorage.getItem('loginData')).email,
-    isAuthenticated: localStorage.getItem('loginData')? true : false,
-    theme: 'light',
-    language: 'rus'
-  })
+const {state, setState} =useContext(Context)
 
-
-  console.log('aaaaap', state);
+//  console.log('app', state);
   return (
-    <Context.Provider value={{state, setState}}>
       <div className={`App ${state.theme == 'light' ? "light" : "dark"}`}>
         <Bootstrap.Container>
           <NavbarComponent />
           <BrowserRouter>
-          <Routes>
-            <Route path='/' exact element={<Main/>}/>
-            <Route path='/reviews' exact element={<MyReviews/>}/>
-          </Routes>
+          {state.role === 'admin'?
+            (<Routes>
+              <Route path='/' exact element={<AdminPanel/>}/>
+              <Route path='/reviews/:userEmail' element={<MyReviews/>}/>
+            </Routes>) : (
+            <Routes>
+              <Route path='/' exact element={<Main/>}/>
+              <Route path='/reviews' exact element={<MyReviews/>}/>
+            </Routes>
+            )
+          }
+
           </BrowserRouter>
         </Bootstrap.Container>
       </div>
-    </Context.Provider>
   );
 }
 
