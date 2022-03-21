@@ -1,28 +1,77 @@
 import { useState, useContext, useEffect } from "react"
 import { EditableReview } from './editable-review'
+import { StarRating } from './star-rating'
 import {Container, Row, Col, Image} from 'react-bootstrap';
 import { Context } from './context'
 import ReactStars from "react-rating-stars-component";
+import { Rating } from 'react-simple-star-rating'
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {  faHeart, faCoffee, faPenToSquare  } from '@fortawesome/free-solid-svg-icons'
 import MDEditor from '@uiw/react-md-editor';
 
 export const ReviewBlock = (props) => {
+
   const { state } = useContext(Context)
-  const [rating, setRating] = useState(props.rate)
+  const [rating, setRating] = useState(0)
   const [edit, setEdit] = useState(false)
-  const [isLiked, setIsLiked] = useState(props.count_likes == 0? false : true)
-  console.log('item rerendered');
-  console.log(props.isAuthenticated);
+  const [isShown, setIsShown] = useState(false)
+  const [tags, setTags] = useState([])
+  const [images, setImages] = useState([])
+  const [isLiked, setIsLiked] = useState(false)
   useEffect(()=> {
+    getRating()
+    getTags()
+    getImages()
   }, [props.isAuthenticated])
   const onStarClick = (newRating) => {
     setRating(newRating)
   }
-  const handleLike = async () => {
-    const tempState = isLiked
-    setIsLiked(!isLiked)
-    const request = await fetch('/api/like', {
+
+  const getTags = async () => {
+    await fetch('/api/get-tags', {
+      method: 'POST',
+      body: JSON.stringify({
+        review_id: props.id,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => response.json()).then(data => setTags(data.result))
+  }
+  const getImages = async () => {
+    await fetch('/api/get-images', {
+      method: 'POST',
+      body: JSON.stringify({
+        review_id: props.id,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => response.json()).then(data => setImages(data.result))
+  }
+
+  const getRating = async () => {
+    await fetch('/api/get-rating', {
+      method: 'POST',
+      body: JSON.stringify({
+        review_id: props.id,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => response.json()).then(data => {
+      setRating(data.result.reduce((agr, item) => agr + item.rating, 0) /( data.result.length || 1))
+       if(data.result.find(item => item.user_id == state.user_id ) && data.result.find(item => item.user_id == state.user_id ).like_value > 0)
+        setIsLiked(true)
+    })
+  }
+
+  const changeRating = async (e, newRating) => {
+    e.stopPropagation()
+    if(newRating) setRating(newRating)
+    else setIsLiked(!isLiked)
+    await fetch('/api/change-rating', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -31,74 +80,76 @@ export const ReviewBlock = (props) => {
         {
         review_id: props.id,
         user_id: props.user_id,
-        isLiked: tempState,
+        isLiked: isLiked,
+        rating: newRating,
       }
     )
     })
-    console.log(isLiked);
-
   }
 
-
-  let stars = {
-    className:"rating",
-    count: 5,
-    value: rating,
-    onChange: onStarClick,
-    edit: props.isAuthenticated? true: false,
-    size: 25,
-    activeColor: "#ffd700"
-
-  };
-
-  // <ReactStars
-  //     className="rating"
-  //     count={5}
-  //     value={rating}
-  //     onChange={onStarClick}
-  //     edit={props.isAuthenticated}
-  //     size={25}
-  //     activeColor="#ffd700"
-  //   />
-  let imagesToRender = props.img_source.map(item => (
+  let imagesToRender = images.map(item => (
     <Image
+      key={item.id}
       fluid={true}
       rounded={true}
-      src={item}/>
+      src={item.source}/>
+  ))
+  let tagsToRender = tags.map(item => (
+    <span
+    key={item.id}
+    className='tag'>{item.tag_value}</span>
   ))
   return (
     <>
     { !edit ?
-      (<Container className='reviewBlock'>
-        <div className="review-header">
+      (<Container
+        className='reviewBlock'
+        onClick={() => setIsShown(!isShown)}>
+        <div className="review-header" rating={rating}>
           <h3>{props.name}</h3>
           <div style={{display: "flex"}}>
             <FontAwesomeIcon
+              name='likeButton'
               style={{color: isLiked? 'red' : 'gray'}}
-              onClick={handleLike}
+              onClick={changeRating}
               className='red-color'
               icon={  faHeart} />
-            <ReactStars {...stars}       />
+              <StarRating
+                isAuthenticated={state.isAuthenticated}
+                changeRating={changeRating}
+                rating={rating}/>
+                <StarRating
+                  count={5}
+                  size={25}
+                  value={rating}
+                  activeColor ={'#febc0b'}
+                  inactiveColor={'#ddd'}
+                  changeRating={changeRating}  />
+
               { props.editable ?
                 (<FontAwesomeIcon
                     style={{color: '#505'}}
-                    onClick={() => setEdit(!edit)}
+                    onClick={() => {
+                    setEdit(!edit)}}
                     icon={faPenToSquare}/>) : (<></>)
               }
           </div>
         </div>
-        <MDEditor.Markdown source={props.text} />
-        <div>tags</div>
-        <div className='review-images'>
-          {imagesToRender}
-        </div>
+        <div>{tagsToRender}</div>
+        {isShown && <>
+          <MDEditor.Markdown source={props.text} />
+          <div className='review-images'>
+            {imagesToRender}
+          </div></>}
     </Container>) : (
       <EditableReview
         setEdit={setEdit}
         id={props.id}
         name={props.name}
         text={props.text}
-        rate={props.rate}
+        rating={props.rating}
+        tags={tags.map(item => item =item.tag_value)}
+        images={images}
         />
     )}
     </>

@@ -1,5 +1,6 @@
 import './App.css';
 import { useState, useContext } from 'react';
+import { useSelector } from 'react-redux';
 import * as Bootstrap from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { NavbarComponent } from './components/navbar'
@@ -12,16 +13,20 @@ import './style/style.css'
 
 function App() {
 const {state, setState} =useContext(Context)
-
+const [searchValue, setSearchValue] = useState('')
+const [searchedData, setSearchedData] = useState([])
+const theme = useSelector((state) => state.theme)
+console.log(theme);
+console.log('app', searchedData);
 //  console.log('app', state);
   return (
-      <div className={`App ${state.theme == 'light' ? "light" : "dark"}`}>
+      <div className={`App ${theme}`}>
         <Bootstrap.Container>
-          <NavbarComponent />
+          <NavbarComponent setSearchedData={setSearchedData}/>
           <BrowserRouter>
           {state.role === 'admin'?
             (<Routes>
-              <Route path='/' exact element={<AdminPanel/>}/>
+              <Route path='/' exact element={<AdminPanel />}/>
               <Route path='/reviews/:userEmail' element={<MyReviews/>}/>
             </Routes>) : (
             <Routes>

@@ -2,31 +2,30 @@ import { useState, useContext, useEffect, useCallback } from "react"
 import {Container, Row, Col, Image, Form, Button} from 'react-bootstrap';
 import ReactStars from "react-rating-stars-component";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { MarkdownEditor } from './markdown-editor'
 import {  faHeart, faPenToSquare, faXmark  } from '@fortawesome/free-solid-svg-icons'
-import useDrivePicker from 'react-google-drive-picker'
+import { MarkdownEditor } from './markdown-editor'
 import {useDropzone} from 'react-dropzone'
 import { Context } from './context'
+
 export const EditableReview = (props) => {
 
   const [textValue, setTextValue] = useState(props.text || ' ')
   const [nameValue, setNameValue] = useState(props.name || ' ')
-  const [images, setimages] = useState([1, 2, 3])
+  const [tags, setTags] = useState(props.tags.join(' ') || ' ')
+  const [images, setImages] = useState(props.images)
   const [files, setFiles] = useState([])
+  const [imagesToRemove, setImagesToRemove] = useState([])
   const {state} = useContext(Context)
-
   const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
     acceptedFiles.forEach(file => {
       const reader = new FileReader()
       reader.onload = () => {
          setFiles(prevState => [...prevState, reader.result])
       }
-      console.log('file', file.data);
       reader.readAsDataURL(file)
     })
-    console.log('accepted', acceptedFiles);
-    console.log('rejected', rejectedFiles);
   }, [])
+
   const { getRootProps, getInputProps } = useDropzone({onDrop})
   useEffect(() => {
     console.log(files);
@@ -34,7 +33,10 @@ export const EditableReview = (props) => {
   const uploadedImages = files.map((file, index) => (
       <img src={file} key={index} style={{ width: "200px" }} alt="preview" />
   ))
+  const handleTagInput = (e) => {
 
+    setTags(e.target.value)
+  }
   const removeReview = async () => {
     const request = await fetch('/api/remove-review', {
       method: 'POST',
@@ -53,8 +55,11 @@ export const EditableReview = (props) => {
     })
   }
   const saveChanges = async () => {
+    let tagsForSave = tags.replace(/ +/g, " ").split(' ')
+    let tagsToRemove = props.tags.filter(item => !tagsForSave.includes(item))
+    let tagsToInsert = tagsForSave.filter(item => !props.tags.includes(item))
+    props.setEdit(false)
     if(props.create){
-      console.log('create', props.create);
       const request = await fetch('/api/create-review', {
         method: 'POST',
         headers: {
@@ -66,6 +71,8 @@ export const EditableReview = (props) => {
             name: nameValue,
             text: textValue,
             files: files,
+            tagsToRemove: tagsToRemove,
+            tagsToInsert: tagsToInsert,
           }
         )
       }).then((data)=>{
@@ -86,31 +93,42 @@ export const EditableReview = (props) => {
             name: nameValue,
             text: textValue,
             files: files,
+            imagesToRemove: imagesToRemove,
+            tagsToRemove: tagsToRemove,
+            tagsToInsert: tagsToInsert,
           }
         )
-      }).then(res => res.json()).then( it => {
-        console.log(it);
-        props.setEdit(false)})
+      }).then(res => res.json()).then(props.setEdit(false))
     }
   }
-  const removeImg = (e) => {
-    setimages(currentImg => currentImg.filter((img, i) => i !== e.target.name))
+  const removeImg = (index) => {
+
+    let tempArr = [...images]
+    setImagesToRemove([...imagesToRemove,tempArr.splice(index, 1)[0] ])
+    console.log('temp',tempArr);
+    console.log('rem', imagesToRemove);
+    setImages(tempArr)
+
   }
 
-  const imagesToRender = images.map( (item, index) => (
-    <>
-      <Image
-        key={index}
-        src={'https://www.codeproject.com/KB/GDI-plus/ImageProcessing2/img.jpg'}/>
-    </>
-  ))
-
-  // <Button onClick={() => handleOpenPicker()}>Open Picker</Button>
+  let imagesToRender = images.map((item, index) => (
+    <span className='imageCard' style={{position: 'relative'}}>
+   <Image
+     key={item.id}
+     fluid={true}
+     rounded={true}
+     src={item.source}/>
+     <span
+      onClick={() => removeImg(index)}
+      className='removeImageBtn'>&#215;
+     </span>
+     </span>
+ ))
   return (
     <Container className='reviewBlock'>
       <Button
         variant="primary"
-        onClick={saveChanges}>Save</Button>
+        onClick={saveChanges}>{props.create? "Create" : "Save"}</Button>
       <Button
         variant="light"
         onClick={() => props.setEdit(false)}>Cancel</Button>
@@ -125,7 +143,7 @@ export const EditableReview = (props) => {
         <div style={{display: "flex"}}>
           <FontAwesomeIcon
             className='red-color'
-            icon={  faHeart} />
+            icon={ faHeart} />
           <ReactStars
               className="rating"
               count={5}
@@ -143,7 +161,8 @@ export const EditableReview = (props) => {
       </p>
       <div>
         <Form.Control
-          value='tags'
+          onChange={handleTagInput}
+          value={tags}
         />
       </div>
       <div style={{height: '300px', border: '1px dashed black'}}{...getRootProps()}>

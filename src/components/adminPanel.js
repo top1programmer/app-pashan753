@@ -27,7 +27,9 @@ export const AdminPanel = () =>{
       headers: {
         'Content-Type': 'application/json'
       },
-    }).then(res => res.json()).then(data => setAllUsers(data.result))
+    }).then(res => res.json()).then(data => {
+      console.log(data.result);
+      setAllUsers(data.result)})
   }
 
   if(allUsers.length !== undefined && allUsers.length == 0)

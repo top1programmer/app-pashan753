@@ -4,13 +4,25 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from "react-redux"
+import { createStore } from 'redux';
+import rootReducer from './reducer/rootReducer'
 import { Context } from './components/context'
+import { persistStore, persistReducer } from 'redux-persist'
+import storage from 'redux-persist/lib/storage' // defaults to localStorage for web
+import { PersistGate } from 'redux-persist/integration/react'
 
-// import { createStore } from 'redux';
-//
-// const store = createStore(reducer);
-//
-// export default store;
+
+//const store = createStore(rootReducer);
+
+const persistConfig = {
+  key: 'root',
+  storage,
+  blacklist: ['textToSearch']
+}
+
+const persistedReducer = persistReducer(persistConfig, rootReducer)
+let store = createStore(persistedReducer)
+let persistor = persistStore(store)
 
 const ContextProvider = (props) => {
   //console.log(localStorage.getItem('context'));
@@ -25,12 +37,15 @@ const ContextProvider = (props) => {
     language: 'rus',
     user_id: 0,
     filter: '',
-    role: 'user'
+    role: 'user',
+    textToSearch: ''
   })
+
   return (
     <Context.Provider value={{state, setState}}>
       {props.children}
     </Context.Provider>
+
   )
 }
 
@@ -38,7 +53,11 @@ const ContextProvider = (props) => {
 ReactDOM.render(
   <React.StrictMode>
     <ContextProvider>
-      <App />
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <App />
+        </PersistGate>
+      </Provider>
     </ContextProvider>
   </React.StrictMode>,
   document.getElementById('root')

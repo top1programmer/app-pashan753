@@ -15,7 +15,6 @@
   max-width: 250px;
   width: 30%;
   height: auto;
-  margin-right: 3%;
 }
 .reviewBlock input{
   max-width: 80%;
@@ -26,11 +25,50 @@
   background-color: #212529;
 }
 
+.tag{
+  background-color: #abc8f5;
+  color: #000000;
+  border-radius: 10px;
+  padding: 0 10px;
+  margin-right: 5px;
+}
+
 a{
   text-decoration:none;
 }
+.imageCard{
+  position: relative;
+  margin-right: 3%;
+}
+/* .removeImageBtn{
+  position: absolute;
+  z-index: 2;
+  right: 10px;
+  font-size: 25px;
+  color: red;
+} */
 
 
+.removeImageBtn {
+  display: inline;
+position: absolute;
+right: -10px;
+border-radius: 10em;
+padding: 2px 6px 3px;
+font: 700 21px/20px sans-serif;
+background: #555;
+border: 3px solid #fff;
+color: #FFF;
+}
+.removeImageBtn:hover {
+ background: #E54E4E;
+  padding: 3px 7px 5px;
+right: -11px;
+}
+.removeImageBtn:active {
+ background: #E54E4E;
+right: -11px;
+}
 
 @media screen and (max-width: 1200px) {
   .review-images{
@@ -50,4 +88,23 @@ a{
 .loginbtn{
   max-width: 200px;
   max-height: 30px;
+}
+
+/* ---------------stars--------------*/
+.star {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.inactive, .active {
+  background: transparent;
+  user-select: none;
+}
+
+.inactive {
+  color: #f1f1e8;
+}
+
+.active {
+  color: red;
 }
