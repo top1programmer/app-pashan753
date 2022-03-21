@@ -5,17 +5,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {  faHeart, faPenToSquare, faXmark  } from '@fortawesome/free-solid-svg-icons'
 import { MarkdownEditor } from './markdown-editor'
 import {useDropzone} from 'react-dropzone'
-import { Context } from './context'
+import { useSelector } from 'react-redux';
 
 export const EditableReview = (props) => {
 
   const [textValue, setTextValue] = useState(props.text || ' ')
   const [nameValue, setNameValue] = useState(props.name || ' ')
-  const [tags, setTags] = useState(props.tags.join(' ') || ' ')
-  const [images, setImages] = useState(props.images)
+  const [tags, setTags] = useState(props.tags? props.tags.join(' ') : ' ')
+  const [images, setImages] = useState(props.images || [] )
   const [files, setFiles] = useState([])
+  const user_id = useSelector((state) => state.user_id)
   const [imagesToRemove, setImagesToRemove] = useState([])
-  const {state} = useContext(Context)
   const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
     acceptedFiles.forEach(file => {
       const reader = new FileReader()
@@ -54,10 +54,11 @@ export const EditableReview = (props) => {
       setNameValue('')
     })
   }
+
+  let newar = []
+  newar.forEach(item => console.log('hello'))
   const saveChanges = async () => {
-    let tagsForSave = tags.replace(/ +/g, " ").split(' ')
-    let tagsToRemove = props.tags.filter(item => !tagsForSave.includes(item))
-    let tagsToInsert = tagsForSave.filter(item => !props.tags.includes(item))
+    let tagsForSave = tags.replace(/ +/g, " ").trim().split(' ')
     props.setEdit(false)
     if(props.create){
       const request = await fetch('/api/create-review', {
@@ -67,12 +68,11 @@ export const EditableReview = (props) => {
         },
         body: JSON.stringify(
           {
-            user_id: state.user_id,
+            user_id: user_id,
             name: nameValue,
             text: textValue,
             files: files,
-            tagsToRemove: tagsToRemove,
-            tagsToInsert: tagsToInsert,
+            tagsToInsert: tagsForSave,
           }
         )
       }).then((data)=>{
@@ -82,6 +82,9 @@ export const EditableReview = (props) => {
       })
     }
     else {
+      let tagsToRemove = props.tags.filter(item => !tagsForSave.includes(item))
+      let tagsToInsert = tagsForSave.filter(item => !props.tags.includes(item))
+
       const request = await fetch('/api/save', {
         method: 'POST',
         headers: {

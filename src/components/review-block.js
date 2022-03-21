@@ -1,18 +1,16 @@
 import { useState, useContext, useEffect } from "react"
+import { useSelector } from 'react-redux';
 import { EditableReview } from './editable-review'
 import { StarRating } from './star-rating'
 import {Container, Row, Col, Image} from 'react-bootstrap';
-import { Context } from './context'
-import ReactStars from "react-rating-stars-component";
-import { Rating } from 'react-simple-star-rating'
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {  faHeart, faCoffee, faPenToSquare  } from '@fortawesome/free-solid-svg-icons'
 import MDEditor from '@uiw/react-md-editor';
 
 export const ReviewBlock = (props) => {
 
-  const { state } = useContext(Context)
+  const user_id = useSelector((state) => state.user_id)
+  const isAuthenticated = useSelector((state) => state.isAuthenticated)
   const [rating, setRating] = useState(0)
   const [edit, setEdit] = useState(false)
   const [isShown, setIsShown] = useState(false)
@@ -62,7 +60,7 @@ export const ReviewBlock = (props) => {
       },
     }).then(response => response.json()).then(data => {
       setRating(data.result.reduce((agr, item) => agr + item.rating, 0) /( data.result.length || 1))
-       if(data.result.find(item => item.user_id == state.user_id ) && data.result.find(item => item.user_id == state.user_id ).like_value > 0)
+       if(data.result.find(item => item.user_id == user_id ) && data.result.find(item => item.user_id == user_id ).like_value > 0)
         setIsLiked(true)
     })
   }
@@ -115,7 +113,7 @@ export const ReviewBlock = (props) => {
               className='red-color'
               icon={  faHeart} />
               <StarRating
-                isAuthenticated={state.isAuthenticated}
+                isAuthenticated={isAuthenticated}
                 changeRating={changeRating}
                 rating={rating}/>
                 <StarRating

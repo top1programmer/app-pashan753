@@ -1,19 +1,18 @@
 import { useState, useContext, useEffect } from 'react'
-import { Context } from './context'
 import { ReviewBlock } from './review-block'
 import { EditableReview } from './editable-review'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {  faArrowLeft, faPlus  } from '@fortawesome/free-solid-svg-icons'
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
+import { Row, Col} from 'react-bootstrap';
 
 export const MyReviews = (props) => {
-  let arr1 = [1, 2, 3, 4, 5, 6]
-  console.log([...arr1.slice(0, 2), ...arr1.slice(3, arr1.length)]);
-  console.log(arr1.splice(2, 1));
+  // let arr1 = [1, 2, 3, 4, 5, 6]
+  // console.log([...arr1.slice(0, 2), ...arr1.slice(3, arr1.length)]);
+  // console.log(arr1.splice(2, 1));
   const stateRedux = useSelector((state) => state)
-  console.log('myr', stateRedux);
-  const {state} = useContext(Context)
+
   const  { userEmail } = useParams()
   const history = useNavigate();
   //console.log('my', state);
@@ -21,7 +20,7 @@ export const MyReviews = (props) => {
   const [isVisible, setIsVisible ] = useState(false)
   useEffect(()=> {
       getReviews()
-  }, [stateRedux.textToSearch])
+  }, [stateRedux.textToSearch, stateRedux.filter])
   const getReviews = async () => {
     const response = await fetch('/api/get-reviews', {
       method: 'POST',
@@ -33,9 +32,12 @@ export const MyReviews = (props) => {
         textToSearch: stateRedux.textToSearch,
         user_id: stateRedux.user_id
       })
-    }).then(res => res.json()).then(data => setReviews(data.result))
+    }).then(res => res.json()).then(data => {
+      if(data)
+      setReviews(data.result)
+    })
   }
-  console.log('myrev', reviews);
+
   const changeVisibility = () => {
     setIsVisible(!isVisible)
   }
@@ -49,11 +51,18 @@ export const MyReviews = (props) => {
   }
 
   const filtreredReviews = [...reviews]
-  if(state.filter === 'last')
+  if(stateRedux.filter === 'last'){
     filtreredReviews.sort((a,b) =>  {
       console.log(a.creation_date > b.creation_date);
       return Date.parse(b.creating_date) - Date.parse(a.creating_date)
     })
+  } else if( stateRedux.filter === 'most-rated'){
+    filtreredReviews.sort((a,b) =>  {
+      console.log(a.creation_date > b.creation_date);
+      return Date.parse(b.creating_date) - Date.parse(a.creating_date)
+    })
+  }
+
     //console.log(filtreredReviews);
   const dataToShow = filtreredReviews.map( item => (
    <ReviewBlock
@@ -69,10 +78,10 @@ export const MyReviews = (props) => {
      img_source={item.img_source}
    />
   ))
+  // style={{position: 'absolute', width: '80%',display: 'flex', justifyContent: 'space-between'}}
   return (
-    <div>
-    <h4>{stateRedux.textToSearch}</h4>
-    <div style={{position: 'absolute', width: '80%',display: 'flex', justifyContent: 'space-between'}}>
+    <Row>
+    <Col xs={1}>
       {userEmail !== undefined &&
           <FontAwesomeIcon
             className='backToAdminBtn'
@@ -83,15 +92,15 @@ export const MyReviews = (props) => {
               onClick={changeVisibility}
               icon={faPlus} />
 
-      </div>
-      <div style={{display: isVisible}}>
+      </Col>
+      <Col xs={11} style={{display: isVisible}}>
       { isVisible && <EditableReview
           setEdit={setIsVisible}
           create={stateRedux.email}
           createReview={createReview}
                       />}
-      </div>
       {dataToShow}
-    </div>
+      </Col>
+    </Row>
   )
 }

@@ -1,17 +1,14 @@
 import {useState, useContext, useEffect } from 'react'
-import { Context } from './context'
 import { ReviewBlock } from './review-block'
 import { useSelector, useDispatch } from 'react-redux';
 
 export const Main = ( ) => {
 
-  const {state} = useContext(Context)
   const stateRedux = useSelector((state) => state)
   const [reviews, setReviews] = useState([])
   useEffect(()=> {
       getReviews()
   }, [stateRedux.textToSearch])
-  console.log('main', reviews);
   const getReviews = async () => {
     const response = await fetch('/api/get-reviews', {
       method: 'POST',
@@ -21,7 +18,11 @@ export const Main = ( ) => {
       body: JSON.stringify({
         textToSearch: stateRedux.textToSearch,
       })
-    }).then(res => res.json()).then(data => setReviews(data.result))
+    }).then(res => res.json()).then(data => {
+
+      if(data)
+        setReviews(data.result)
+    })
   }
 
   const dataToShow = reviews.map( item => (

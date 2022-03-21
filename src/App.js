@@ -1,30 +1,25 @@
 import './App.css';
 import { useState, useContext } from 'react';
 import { useSelector } from 'react-redux';
-import * as Bootstrap from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { NavbarComponent } from './components/navbar'
 import { Route, Routes, BrowserRouter } from 'react-router-dom'
-import { Context } from './components/context'
 import { Main } from './components/main'
 import { MyReviews } from './components/myReviews'
 import { AdminPanel } from './components/adminPanel'
 import './style/style.css'
 
 function App() {
-const {state, setState} =useContext(Context)
-const [searchValue, setSearchValue] = useState('')
-const [searchedData, setSearchedData] = useState([])
 const theme = useSelector((state) => state.theme)
-console.log(theme);
-console.log('app', searchedData);
-//  console.log('app', state);
+const role = useSelector((state) => state.role)
+
   return (
       <div className={`App ${theme}`}>
-        <Bootstrap.Container>
-          <NavbarComponent setSearchedData={setSearchedData}/>
+        <Container>
+          <NavbarComponent/>
           <BrowserRouter>
-          {state.role === 'admin'?
+          {role === 'admin'?
             (<Routes>
               <Route path='/' exact element={<AdminPanel />}/>
               <Route path='/reviews/:userEmail' element={<MyReviews/>}/>
@@ -37,7 +32,7 @@ console.log('app', searchedData);
           }
 
           </BrowserRouter>
-        </Bootstrap.Container>
+        </Container>
       </div>
   );
 }

@@ -7,12 +7,11 @@ import BootstrapSwitchButton from 'bootstrap-switch-button-react'
 import { Context } from './context'
 import { useSelector, useDispatch } from 'react-redux';
 
+
  export const NavbarComponent = (props) => {
 
   const stateRedux = useSelector((state) => state)
-  console.log('s', stateRedux);
   const dispatch = useDispatch()
-  // const { state, setState  } = useContext(Context);
   const [loginOptions, setLoginOptions] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const [loginData, setLoginData] = useState(
@@ -23,6 +22,15 @@ import { useSelector, useDispatch } from 'react-redux';
   const handleFailure = (result) => {
     alert(result);
   };
+
+
+  let languageSettings = require(`../languageSettings/${stateRedux.language}.json`)
+  console.log(languageSettings);
+  console.log(stateRedux.language);
+  useEffect(() => {
+    // console.log('dodo');
+    // languageSettings = require(`../languageSettings/${stateRedux.language}.json`)
+  },[stateRedux.language])
 
   const handleLogin = async (googleData) => {
     console.log(googleData);
@@ -61,9 +69,12 @@ import { useSelector, useDispatch } from 'react-redux';
   };
 
   const handleFilterChange = (e) => {
-    console.log(e.target.name);
-    // setState(prevState => ({ ...prevState, filter: e.target.name }))
-    // localStorage.setItem('context', JSON.stringify(state));
+    dispatch({type:"CHANGE_FILTER", payload: e.target.name})
+    //console.log(e.target.name);
+  }
+  const handleLanguageChange = (e) => {
+    dispatch({type:"CHANGE_LANGUAGE", payload: e.target.value})
+    //console.log(e.target.name);
   }
 
   function responseFacebook(response) {
@@ -83,18 +94,19 @@ import { useSelector, useDispatch } from 'react-redux';
       role: data.role,
     }})
     localStorage.setItem('loginData', JSON.stringify(data));
-    // localStorage.setItem('context', JSON.stringify(state));
   }
 
   return  (
-    <Navbar  bg={stateRedux.theme}  variant={stateRedux.theme}>
+    <Navbar
+      bg={stateRedux.theme}
+      variant={stateRedux.theme}>
       <Container>
         <Nav className="me-auto">
             {stateRedux.role !== 'admin' && stateRedux.isAuthenticated && <><Nav.Item as="li">
-              <Nav.Link href="/">Home</Nav.Link>
+              <Nav.Link href="/">{languageSettings.home}</Nav.Link>
             </Nav.Item>
             <Nav.Item as="li">
-              <Nav.Link href="/reviews">My revies</Nav.Link>
+              <Nav.Link href="/reviews">{languageSettings.myReviews}</Nav.Link>
             </Nav.Item></>}
             <Nav.Item as="li">
             <InputGroup className="mb-3">
@@ -105,11 +117,11 @@ import { useSelector, useDispatch } from 'react-redux';
               <Button
                 variant="outline-secondary"
                 onClick={()=> dispatch({type:"CHANGE_SEARCH", payload: searchValue})}>
-                Button
+                {languageSettings.search}
               </Button>
               <DropdownButton
                 variant="outline-secondary"
-                title="filter"
+                title={languageSettings.filter}
                 id="input-group-dropdown-2"
                 align="end"
               >
@@ -119,17 +131,21 @@ import { useSelector, useDispatch } from 'react-redux';
                 <Dropdown.Item
                   onClick={handleFilterChange}
                   name='last' href="#">last</Dropdown.Item>
-                <Dropdown.Item
-                  onClick={handleFilterChange}
-                  name='else' href="#">Something else here</Dropdown.Item>
               </DropdownButton>
+              <Form.Select
+                onChange={handleLanguageChange}
+                aria-label="Default select example">
+                <option></option>
+                <option value="rus">rus</option>
+                <option value="eng">eng</option>
+              </Form.Select>
               </InputGroup>
             </Nav.Item>
             <Nav.Item>
             <BootstrapSwitchButton
               checked={stateRedux.theme === 'dark' ? true : false}
-              onlabel='Light'
-              offlabel='Dark'
+              onlabel={languageSettings.light}
+              offlabel={languageSettings.dark}
               onstyle="dark"
               offstyle="light"
               style="border"
@@ -145,35 +161,32 @@ import { useSelector, useDispatch } from 'react-redux';
           <Nav>
               {loginData ? (
                 <>
-
-                    <Navbar.Text>
-                      Signed in as : {loginData.email}
-                    </Navbar.Text>
+                  <Navbar.Text>
+                    {languageSettings.singnedInAs} : {loginData.email}
+                  </Navbar.Text>
                   <Nav.Item>
                     <Nav.Link
-                      onClick={handleLogout}>logout
+                      onClick={handleLogout}>{languageSettings.logout}
                     </Nav.Link>
                   </Nav.Item>
                 </>
               ) : (
                 <div>
-
-                <FacebookLogin
-                  className='loginbtn'
-                  appId="3215882551990420"
-                  autoLoad={false}
-                  fields="name,email,picture"
-                  callback={responseFacebook} />
-                <GoogleLogin
-                  className='loginbtn'
-                  clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-                  buttonText="Log in with Google"
-                  onSuccess={handleLogin}
-                  onFailure={handleFailure}
-                  cookiePolicy={'single_host_origin'}
-                  prompt="select_account"
-                ></GoogleLogin>
-
+                  <FacebookLogin
+                    className='loginbtn'
+                    appId="3215882551990420"
+                    autoLoad={false}
+                    fields="name,email,picture"
+                    callback={responseFacebook} />
+                  <GoogleLogin
+                    className='loginbtn'
+                    clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+                    buttonText="Log in with Google"
+                    onSuccess={handleLogin}
+                    onFailure={handleFailure}
+                    cookiePolicy={'single_host_origin'}
+                    prompt="select_account"
+                  ></GoogleLogin>
                 </div>
               )
             }

@@ -25,7 +25,7 @@ connection.connect(function(err){
 
 const app = express();
 app.use(express.json());
-
+// app.use(express.limit('5mb'));
 dotenv.config();
 const client = new OAuth2Client(process.env.REACT_APP_GOOGLE_CLIENT_ID);
 
@@ -90,7 +90,7 @@ const collectReviews = (data) => {
 
 app.post('/api/get-reviews', async (req, res)=>{
   try{
-    console.log(req.body);
+    // console.log(req.body);
     let sql = ''
     if(req.body.textToSearch !== '' && req.body.user_id){
         sql = `SELECT * FROM review WHERE user_id="${req.body.user_id}" and
@@ -106,16 +106,17 @@ app.post('/api/get-reviews', async (req, res)=>{
       sql = `select * FROM review where user_id="${req.body.user_id}"`
     }
     else {
-      sql = "select rw.*, si.source from review rw left join image_sources si on rw.id=review_id order by rw.id"
+      // sql = "select rw.*, si.source from review rw left join image_sources si on rw.id=review_id order by rw.id"
+      sql = "select * from review "
     }
     let dataToResponse = []
     connection.query(sql, function(err, results, fields) {
       // dataToResponse = collectReviews(results)
       // console.log(dataToResponse);
       // res.json({result: dataToResponse})
-        console.log(sql);
-        console.log(err);
-        console.log(results);
+        // console.log(sql);
+        // console.log(err);
+        // console.log(results);
        res.json({result: results})
     })
   } catch(error){ console.log(error)}
@@ -169,9 +170,11 @@ app.post('/api/change-rating', async (req, res) => {
     }
 
     const updateTags = async (id, tagsToInsert, tagsToRemove) => {
-      tagsToRemove.forEach(item => {
-        connection.query(`delete from tags where review_id="${id}", tag_value="${item}" `)
-      })
+      if(tagsToRemove){
+        tagsToRemove.forEach(item => {
+          connection.query(`delete from tags where review_id="${id}", tag_value="${item}" `)
+        })
+      }
       tagsToInsert.forEach(item => {
         connection.query(`insert into tags(review_id, tag_value)
         values("${id}","${item}") `)
@@ -201,7 +204,7 @@ app.post('/api/change-rating', async (req, res) => {
       values(${req.body.user_id}, '${req.body.name}', '${req.body.text}')`)
       connection.query(` SELECT LAST_INSERT_ID()`, function(err, results){
         loadImagesToCloud(req.body.files, results[0]['LAST_INSERT_ID()'])
-        updateTags(results[0]['LAST_INSERT_ID()'], req.body.tagsToInsert, req.body.tagsToRemove)
+        updateTags(results[0]['LAST_INSERT_ID()'], req.body.tagsToInsert)
       })
     })
 

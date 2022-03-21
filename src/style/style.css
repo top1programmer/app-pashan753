@@ -89,7 +89,9 @@ right: -11px;
   max-width: 200px;
   max-height: 30px;
 }
-
+.reviewList{
+  padding-top: 20px;
+}
 /* ---------------stars--------------*/
 .star {
   display: inline-block;
