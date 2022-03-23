@@ -9,13 +9,17 @@ import { useSelector } from 'react-redux';
 
 export const EditableReview = (props) => {
 
-  const [textValue, setTextValue] = useState(props.text || ' ')
-  const [nameValue, setNameValue] = useState(props.name || ' ')
-  const [tags, setTags] = useState(props.tags? props.tags.join(' ') : ' ')
+  const [textValue, setTextValue] = useState(props.text || '')
+  const [nameValue, setNameValue] = useState(props.name || '')
+  const [tags, setTags] = useState(props.tags? props.tags.join(' ') : '')
   const [images, setImages] = useState(props.images || [] )
   const [files, setFiles] = useState([])
   const user_id = useSelector((state) => state.user_id)
+  const language = useSelector((state) => state.language)
+  const theme = useSelector((state) => state.theme)
   const [imagesToRemove, setImagesToRemove] = useState([])
+
+  let languageSettings = require(`../languageSettings/${language}.json`)
   const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
     acceptedFiles.forEach(file => {
       const reader = new FileReader()
@@ -30,15 +34,35 @@ export const EditableReview = (props) => {
   useEffect(() => {
     console.log(files);
   }, [files])
+
+  const removeUploadedImage = (index) => {
+    let tempArr = [...files]
+    tempArr = tempArr.filter((item, ind) => ind !== index)
+    setFiles(tempArr)
+  }
   const uploadedImages = files.map((file, index) => (
+    <span className='imageCard' style={{position: 'relative'}}>
       <img src={file} key={index} style={{ width: "200px" }} alt="preview" />
+      <span
+       onClick={() => removeUploadedImage(index)}
+       className='removeImageBtn'>&#215;
+      </span>
+    </span>
   ))
+  //
+  // let ttt = 'asfaff\nadaga\n\n\n'
+  // let xxx = ttt.replace(/(?:\r\n|\r|\n)/g, '(#xpzR2)');
+  // console.log('xxx',xxx);
+  // let bbb = xxx.replace(/\(#xpzR2\)+/g, '\n')
+  // console.log('bbb', bbb);
+
   const handleTagInput = (e) => {
 
     setTags(e.target.value)
   }
   const removeReview = async () => {
-    const request = await fetch('/api/remove-review', {
+    if(props.id){
+      await fetch('/api/remove-review', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -49,19 +73,16 @@ export const EditableReview = (props) => {
         }
       )
     }).then((data)=>{
-      props.createReview()
-      setTextValue('')
-      setNameValue('')
+      props.setEdit(false)
     })
+  } else props.setEdit(false)
   }
 
-  let newar = []
-  newar.forEach(item => console.log('hello'))
   const saveChanges = async () => {
     let tagsForSave = tags.replace(/ +/g, " ").trim().split(' ')
     props.setEdit(false)
     if(props.create){
-      const request = await fetch('/api/create-review', {
+      await fetch('/api/create-review', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -70,22 +91,18 @@ export const EditableReview = (props) => {
           {
             user_id: user_id,
             name: nameValue,
-            text: textValue,
+            text: textValue.replace(/(?:")/g, '(#xpzR2)'),
             files: files,
             tagsToInsert: tagsForSave,
           }
         )
-      }).then((data)=>{
-        props.createReview()
-        setTextValue('')
-        setNameValue('')
-      })
+      }).then(/*props.setEdit(false)*/ )
     }
     else {
       let tagsToRemove = props.tags.filter(item => !tagsForSave.includes(item))
       let tagsToInsert = tagsForSave.filter(item => !props.tags.includes(item))
 
-      const request = await fetch('/api/save', {
+      await fetch('/api/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -94,24 +111,21 @@ export const EditableReview = (props) => {
           {
             id: props.id,
             name: nameValue,
-            text: textValue,
+            text: textValue.replace(/(?:\r\n|\r|\n)+/g, '(#xpzR2)'),
             files: files,
             imagesToRemove: imagesToRemove,
             tagsToRemove: tagsToRemove,
             tagsToInsert: tagsToInsert,
           }
         )
-      }).then(res => res.json()).then(props.setEdit(false))
+      }).then(props.setEdit(false))
     }
   }
   const removeImg = (index) => {
 
     let tempArr = [...images]
     setImagesToRemove([...imagesToRemove,tempArr.splice(index, 1)[0] ])
-    console.log('temp',tempArr);
-    console.log('rem', imagesToRemove);
     setImages(tempArr)
-
   }
 
   let imagesToRender = images.map((item, index) => (
@@ -128,54 +142,45 @@ export const EditableReview = (props) => {
      </span>
  ))
   return (
-    <Container className='reviewBlock'>
+    <div className={props.create ? "reviewBlock" : ""}>
       <Button
         variant="primary"
-        onClick={saveChanges}>{props.create? "Create" : "Save"}</Button>
+        onClick={saveChanges}>{props.create? languageSettings.create : languageSettings.save}</Button>
       <Button
         variant="light"
-        onClick={() => props.setEdit(false)}>Cancel</Button>
+        onClick={() => props.setEdit(false)}>{languageSettings.cancel}</Button>
       <Button
         onClick={removeReview}
         variant='danger'><FontAwesomeIcon icon={faXmark} /></Button>
-      <div className="review-header">
-          <Form.Control
-            onChange={(e)=> setNameValue(e.target.value)}
-            value={nameValue}
-            />
-        <div style={{display: "flex"}}>
-          <FontAwesomeIcon
-            className='red-color'
-            icon={ faHeart} />
-          <ReactStars
-              className="rating"
-              count={5}
-              value={props.rating}
-              edit={false}
-              size={25}
-              activeColor="#ffd700"
-            />
-        </div>
-      </div>
-      <p>
-      <MarkdownEditor
-        textValue={textValue}
-        setTextValue={setTextValue}/>
-      </p>
-      <div>
+      <Container>
         <Form.Control
-          onChange={handleTagInput}
-          value={tags}
-        />
-      </div>
-      <div style={{height: '300px', border: '1px dashed black'}}{...getRootProps()}>
-        <input {...getInputProps()} />
-        <p>Drop files here</p>
-      </div>
-      <div>{files.length > 0 && uploadedImages}</div>
-      <div className='review-images'>
-      {imagesToRender}
-      </div>
+          className={theme}
+          placeholder={languageSettings.enterName}
+          onChange={(e)=> setNameValue(e.target.value)}
+          value={nameValue}/>
+        <p>
+          <MarkdownEditor
+            placeholder={languageSettings.enterText}
+            textValue={textValue}
+            setTextValue={setTextValue}/>
+        </p>
+        <div>
+          <Form.Control
+            className={theme}
+            placeholder={languageSettings.enterTags}
+            onChange={handleTagInput}
+            value={tags}
+          />
+        </div>
+        <div className="dropzone"{...getRootProps()}>
+          <input {...getInputProps()} />
+          <p>{languageSettings.dropFiles}</p>
+        </div>
+        <div>{files.length > 0 && uploadedImages}</div>
+        <div className='review-images'>
+        {imagesToRender}
+        </div>
       </Container>
-    )
-  }
+    </div>
+  )
+}

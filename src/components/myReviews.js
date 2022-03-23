@@ -8,21 +8,19 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Row, Col} from 'react-bootstrap';
 
 export const MyReviews = (props) => {
-  // let arr1 = [1, 2, 3, 4, 5, 6]
-  // console.log([...arr1.slice(0, 2), ...arr1.slice(3, arr1.length)]);
-  // console.log(arr1.splice(2, 1));
-  const stateRedux = useSelector((state) => state)
 
+  const stateRedux = useSelector((state) => state)
+  let languageSettings = require(`../languageSettings/${stateRedux.language}.json`)
   const  { userEmail } = useParams()
   const history = useNavigate();
-  //console.log('my', state);
   const [reviews, setReviews ] = useState([])
   const [isVisible, setIsVisible ] = useState(false)
   useEffect(()=> {
       getReviews()
   }, [stateRedux.textToSearch, stateRedux.filter])
   const getReviews = async () => {
-    const response = await fetch('/api/get-reviews', {
+    try {
+      const response = await fetch('/api/get-reviews', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -36,6 +34,8 @@ export const MyReviews = (props) => {
       if(data)
       setReviews(data.result)
     })
+  }
+  catch(err) {console.log(err.message)}
   }
 
   const changeVisibility = () => {
@@ -63,7 +63,6 @@ export const MyReviews = (props) => {
     })
   }
 
-    //console.log(filtreredReviews);
   const dataToShow = filtreredReviews.map( item => (
    <ReviewBlock
      editable={true}
@@ -78,7 +77,6 @@ export const MyReviews = (props) => {
      img_source={item.img_source}
    />
   ))
-  // style={{position: 'absolute', width: '80%',display: 'flex', justifyContent: 'space-between'}}
   return (
     <Row>
     <Col xs={1}>
@@ -99,7 +97,7 @@ export const MyReviews = (props) => {
           create={stateRedux.email}
           createReview={createReview}
                       />}
-      {dataToShow}
+      {reviews.length? dataToShow : <h2>{languageSettings.noReviews}</h2>}
       </Col>
     </Row>
   )

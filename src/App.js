@@ -8,6 +8,7 @@ import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import { Main } from './components/main'
 import { MyReviews } from './components/myReviews'
 import { AdminPanel } from './components/adminPanel'
+import {LoginComponent} from './components/login'
 import './style/style.css'
 
 function App() {
@@ -16,9 +17,9 @@ const role = useSelector((state) => state.role)
 
   return (
       <div className={`App ${theme}`}>
-        <Container>
-          <NavbarComponent/>
           <BrowserRouter>
+          <NavbarComponent/>
+          <Container>
           {role === 'admin'?
             (<Routes>
               <Route path='/' exact element={<AdminPanel />}/>
@@ -27,12 +28,13 @@ const role = useSelector((state) => state.role)
             <Routes>
               <Route path='/' exact element={<Main/>}/>
               <Route path='/reviews' exact element={<MyReviews/>}/>
+              <Route path='/users/login' element={<LoginComponent/>}/>
             </Routes>
             )
           }
 
+          </Container>
           </BrowserRouter>
-        </Container>
       </div>
   );
 }

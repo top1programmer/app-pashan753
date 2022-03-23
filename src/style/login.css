@@ -1,0 +1,26 @@
+.loginArea{
+  max-width: 400px;
+  width: 40%;
+  margin: 100px auto;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.loginWith{
+  display: flex;
+  flex-direction: column;
+}
+.kep-login-facebook{
+  margin-top: 20px;
+  padding: 5px !important;
+  text-transform: none !important;
+}
+.GoogleLogin{
+  max-width: 200px;
+  max-height: 41px;
+  margin: 20px auto;
+}
+@media screen and (max-width: 575px) {
+  .loginArea{
+    width: 80%
+  }
+}

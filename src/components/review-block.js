@@ -74,14 +74,13 @@ export const ReviewBlock = (props) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body:  JSON.stringify(
-        {
+      body:  JSON.stringify({
         review_id: props.id,
         user_id: props.user_id,
         isLiked: isLiked,
-        rating: newRating,
-      }
-    )
+        rating: newRating? newRating : rating,
+        }
+      )
     })
   }
 
@@ -98,11 +97,12 @@ export const ReviewBlock = (props) => {
     className='tag'>{item.tag_value}</span>
   ))
   return (
-    <>
+    <div
+      className='reviewBlock'
+      onClick={() => setIsShown(!isShown)}>
+
     { !edit ?
-      (<Container
-        className='reviewBlock'
-        onClick={() => setIsShown(!isShown)}>
+      (<Container>
         <div className="review-header" rating={rating}>
           <h3>{props.name}</h3>
           <div style={{display: "flex"}}>
@@ -135,11 +135,11 @@ export const ReviewBlock = (props) => {
         </div>
         <div>{tagsToRender}</div>
         {isShown && <>
-          <MDEditor.Markdown source={props.text} />
+          <MDEditor.Markdown source={props.text.replace(/\(#xpzR2\)+/g, '"')} />
           <div className='review-images'>
             {imagesToRender}
           </div></>}
-    </Container>) : (
+      </Container>) : (
       <EditableReview
         setEdit={setEdit}
         id={props.id}
@@ -150,6 +150,6 @@ export const ReviewBlock = (props) => {
         images={images}
         />
     )}
-    </>
+  </div>
   );
 }

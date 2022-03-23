@@ -12,6 +12,8 @@
     "@testing-library/react": "^12.1.3",
     "@testing-library/user-event": "^13.5.0",
     "@uiw/react-md-editor": "^3.9.9",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.2",
     "bootstrap": "^5.1.3",
     "bootstrap-switch-button-react": "^1.2.0",
     "cloudinary": "^1.28.1",
@@ -22,6 +24,7 @@
     "google-auth-library": "^7.14.0",
     "googleapis": "^39.2.0",
     "http-proxy-middleware": "^2.0.4",
+    "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.3.3",
     "react": "^17.0.2",
     "react-bootstrap": "^2.1.2",
@@ -39,7 +42,8 @@
     "redux": "^4.1.2",
     "redux-persist": "^6.0.0",
     "request": "^2.88.2",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "yamde": "^1.6.1"
   },
   "scripts": {
     "start": "react-scripts start",
