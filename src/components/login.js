@@ -20,7 +20,6 @@ export const LoginComponent = ({setLoginData}) => {
       user_id: response.user_id
     };
 
-    // setLoginData(data);
     dispatch({type: 'CHANGE_ISAUTHENTICATED', payload:{
       isAuthenticated: true,
       email: data.email,
@@ -88,7 +87,7 @@ export const LoginComponent = ({setLoginData}) => {
           type="email" placeholder="Enter email"
           onChange={(e)=> setEmail(e.target.value)}/>
         <Form.Text className="text-muted">
-          {password}
+
         </Form.Text>
       </Form.Group>
       <Form.Group className="mb-3" controlId="formBasicPassword">

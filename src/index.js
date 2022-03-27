@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
@@ -13,7 +13,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 const persistConfig = {
   key: 'root',
   storage,
-  blacklist: ['textToSearch', 'filter']
+  blacklist: ['textToSearch', 'filter', 'languageSettings']
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

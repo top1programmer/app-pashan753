@@ -1,5 +1,4 @@
-
-import { useState, useContext, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Navbar, Nav, Container, Row, Col, Form, Dropdown,
   DropdownButton, FormControl, InputGroup, Button} from 'react-bootstrap';
 import BootstrapSwitchButton from 'bootstrap-switch-button-react'
@@ -7,39 +6,47 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass, faFilter } from '@fortawesome/free-solid-svg-icons'
-
+import { useHttp } from '../hooks/http.hook'
 
  export const NavbarComponent = (props) => {
 
   const  history = useNavigate()
+  const request = useHttp()
   const stateRedux = useSelector((state) => state)
   const dispatch = useDispatch()
   const [searchValue, setSearchValue] = useState('')
+  const [suggestedRequests, setSuggestedRequests] = useState([])
   const [loginVisibility, setLoginVisibility] = useState(false)
+
   const [loginData, setLoginData] = useState(
     localStorage.getItem('loginData')
     ? JSON.parse(localStorage.getItem('loginData'))
     : undefined
   );
+
   const handleFailure = (result) => {
     alert(result);
   };
   let languageSettings = require(`../languageSettings/${stateRedux.language || 'eng'}.json`)
-
   useEffect(() => {
     if(stateRedux.language)
       languageSettings = require(`../languageSettings/${stateRedux.language}.json`)
     else
       languageSettings = require(`../languageSettings/eng.json`)
+    dispatch({type:"SET_LANGUAGE_SETTINGS", payload: languageSettings})
   },[stateRedux.language])
 
   const handleFilterChange = (e) => {
     dispatch({type:"CHANGE_FILTER", payload: e.target.name})
-    //console.log(e.target.name);
   }
   const handleLanguageChange = (e) => {
-    dispatch({type:"CHANGE_LANGUAGE", payload: e.target.value})
-    //console.log(e.target.name);
+    dispatch({type:"CHANGE_LANGUAGE", payload: e.target.name})
+  }
+
+  const onSearchInput = async (e) =>{
+    setSearchValue(e.target.value)
+    const data = await request('/api/suggest-request', 'POST', { searchValue })
+    setSuggestedRequests(data)
   }
 
   const handleLogout = () => {
@@ -74,7 +81,12 @@ import { faMagnifyingGlass, faFilter } from '@fortawesome/free-solid-svg-icons'
                 className={stateRedux.theme}
                 placeholder={languageSettings.search}
                 value={searchValue}
-                onChange={(e)=> setSearchValue(e.target.value)}/>
+                onChange={onSearchInput}/>
+                <datalist id="data">
+                 {suggestedRequests.map((item, key) =>
+                   <option key={key} value={item.text} />
+                 )}
+               </datalist>
               <Button
                 variant="outline-secondary"
                 onClick={()=> dispatch({type:"CHANGE_SEARCH", payload: searchValue})}>
@@ -85,14 +97,13 @@ import { faMagnifyingGlass, faFilter } from '@fortawesome/free-solid-svg-icons'
                 variant="outline-secondary"
                 title={<FontAwesomeIcon icon={faFilter} />}
                 id="input-group-dropdown-2"
-                align="end"
-              >
-                <Dropdown.Item
-                  onClick={handleFilterChange}
-                  name='most-rated'href="#">most rated</Dropdown.Item>
-                <Dropdown.Item
-                  onClick={handleFilterChange}
-                  name='last' href="#">last</Dropdown.Item>
+                align="end" >
+                  <Dropdown.Item
+                    onClick={handleFilterChange}
+                    name='most-rated'href="#">most rated</Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={handleFilterChange}
+                    name='last' href="#">last</Dropdown.Item>
               </DropdownButton>
 
               </InputGroup>
@@ -102,14 +113,13 @@ import { faMagnifyingGlass, faFilter } from '@fortawesome/free-solid-svg-icons'
               variant="outline-secondary"
               title={languageSettings.language}
               id="input-group-dropdown-2"
-              align="end"
-            >
+              align="end">
               <Dropdown.Item
                 onClick={handleLanguageChange}
-                value='eng'href="#">eng</Dropdown.Item>
+                name='eng'href="#">eng</Dropdown.Item>
               <Dropdown.Item
                 onClick={handleLanguageChange}
-                value='rus' href="#">rus</Dropdown.Item>
+                name='rus' href="#">rus</Dropdown.Item>
             </DropdownButton>
             <BootstrapSwitchButton
               checked={stateRedux.theme === 'dark' ? true : false}
@@ -122,11 +132,9 @@ import { faMagnifyingGlass, faFilter } from '@fortawesome/free-solid-svg-icons'
               onChange={(checked: boolean) => {
                   localStorage.setItem('context', JSON.stringify(stateRedux));
                   dispatch({type:"CHANGE_THEME", payload: checked? "dark" : "light"})
-
               }}
             />
             </Nav.Item>
-
           </Nav>
         </Navbar.Collapse>
         {stateRedux.email ? (
@@ -155,5 +163,6 @@ import { faMagnifyingGlass, faFilter } from '@fortawesome/free-solid-svg-icons'
       }
       </Container>
     </Navbar>
+
   )
 }

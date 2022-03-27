@@ -15,6 +15,10 @@
     "enterName": "Enter name",
     "enterTags": "Enter tags",
     "enterText": "Enter text",
-    "dropFiles": "Drop images here"
-
+    "dropFiles": "Drop images here",
+    "makeAdmin": "Make admin",
+    "confirmRemove": "Are you sure you want to delete the review?",
+    "onRemoveReview": "Removing the review",
+    "onMissingText": "Fill in the fields",
+    "enterSomeText" : "Fields 'name' and 'text' cannot be empty"
 }

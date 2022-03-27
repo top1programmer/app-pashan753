@@ -1,25 +1,3 @@
-/*import ReactStars from "react-rating-stars-component";
-
-export const StarRating = (props) => {
-
-  let stars = {
-    className:"rating",
-    count: 5,
-    value: props.rating,
-    onChange: (newRating) => {
-      props.setRating(newRating)
-    },
-    edit: props.isAuthenticated? true: false,
-    size: 25,
-    activeColor: "#ffd700"
-  };
-  return   <ReactStars {...stars}/>
-}
-*/
-
-
-import {useState} from 'react';
-
 export const StarRating = ({count, value,
     inactiveColor='#ddd',
     size=24,
@@ -47,24 +25,3 @@ export const StarRating = ({count, value,
     </div>
   )
 }
-
-// export const StarRatingDemo = (props) => {
-//
-//   const [rating, setRating] = useState(props.rating || 0);
-//
-//   const handleChange = (e, value) => {
-//     props.changeRating(e, value)
-//     //setRating(value);
-//   }
-//   return (
-//     <div>
-//       <StarRating
-//        count={5}
-//        size={25}
-//        value={props.rating}
-//        activeColor ={'#febc0b'}
-//        inactiveColor={'#ddd'}
-//        onChange={handleChange}  />
-//     </div>
-//   )
-// }

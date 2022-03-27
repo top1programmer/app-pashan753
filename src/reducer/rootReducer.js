@@ -7,6 +7,7 @@ const initialState = {
   filter: '',
   user_id: '',
   role: 'user',
+  languageSettings:{},
 }
 
 function rootReducer(state=initialState, action){
@@ -18,7 +19,9 @@ function rootReducer(state=initialState, action){
     case 'CHANGE_FILTER' :
       return {...state, filter : action.payload}
     case 'CHANGE_LANGUAGE' :
-      return {...state, language : action.payload}
+      return {...state,  language : action.payload}
+    case 'SET_LANGUAGE_SETTINGS' :
+      return {...state,  languageSettings : action.payload}
     case 'CHANGE_ISAUTHENTICATED' :
       return {
         isAuthenticated : action.payload.isAuthenticated,

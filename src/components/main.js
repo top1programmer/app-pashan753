@@ -1,42 +1,63 @@
 import {useState, useContext, useEffect } from 'react'
 import { ReviewBlock } from './review-block'
 import { useSelector, useDispatch } from 'react-redux';
+import { useHttp } from '../hooks/http.hook'
+import { useParams, useLocation } from "react-router-dom";
 
-export const Main = ( ) => {
+export const Main = ( props) => {
+  const request = useHttp()
+  const { state } = useLocation();
 
-  const stateRedux = useSelector((state) => state)
+  const isAuthenticated = useSelector((state) => state.isAuthenticated)
+  const textToSearch = useSelector((state) => state.textToSearch)
+  const filter = useSelector((state) => state.filter)
   const [reviews, setReviews] = useState([])
+  console.log('main', reviews);
   useEffect(()=> {
+    if(state.tag)
+      getReviewsByTag()
+    else
       getReviews()
-  }, [stateRedux.textToSearch])
-  const getReviews = async () => {
-    const response = await fetch('/api/get-reviews', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        textToSearch: stateRedux.textToSearch,
-      })
-    }).then(res => res.json()).then(data => {
+  }, [textToSearch, isAuthenticated])
 
-      if(data)
-        setReviews(data.result)
+  const getReviews = async () => {
+    const data = await request('/api/get-reviews', 'POST', {
+      textToSearch: textToSearch || '',
     })
+    setReviews(data)
   }
 
-  const dataToShow = reviews.map( item => (
+  const getReviewsByTag = async () => {
+    const data = await request('/api/getReviewsByTag', 'POST', {
+      tag: state.tag,
+    })
+    setReviews(data)
+  }
+
+
+  const filtreredReviews = [...reviews]
+  if(filter === 'last'){
+    filtreredReviews.sort((a,b) =>  {
+      return Date.parse(b.creating_date) - Date.parse(a.creating_date)
+    })
+  } else if(filter === 'most-rated'){
+    filtreredReviews.sort((a,b) =>  b.rate - a.rate)
+  }
+
+  const dataToShow = filtreredReviews.map( item => (
     <ReviewBlock
-      img_source={item.img_source}
+      category={item.category}
       key={item.id}
       id={item.id}
       user_id={item.user_id}
       name={item.name}
       text={item.text}
-      rating={item.rating}
-      isAuthenticated={stateRedux.isAuthenticated}
+      all_likes={item.all_likes}
+      rating={item.rate}
+      isAuthenticated={isAuthenticated}
     />
   ))
+
 
   return (
     <>
