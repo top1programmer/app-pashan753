@@ -18,6 +18,7 @@ a{
 }
 .reviewBlock{
   width: 80%;
+  max-width: 700px;
   border: 2px solid #e8e7e6;
   border-radius: 15px;
   padding: 20px 5px;
