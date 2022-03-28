@@ -12,9 +12,8 @@ export const Main = ( props) => {
   const textToSearch = useSelector((state) => state.textToSearch)
   const filter = useSelector((state) => state.filter)
   const [reviews, setReviews] = useState([])
-  console.log('main', reviews);
   useEffect(()=> {
-    if(state.tag)
+    if(state && state.tag)
       getReviewsByTag()
     else
       getReviews()
@@ -33,7 +32,6 @@ export const Main = ( props) => {
     })
     setReviews(data)
   }
-
 
   const filtreredReviews = [...reviews]
   if(filter === 'last'){
@@ -57,7 +55,6 @@ export const Main = ( props) => {
       isAuthenticated={isAuthenticated}
     />
   ))
-
 
   return (
     <>

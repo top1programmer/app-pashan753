@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {  faHeart, faPenToSquare  } from '@fortawesome/free-solid-svg-icons'
 import MDEditor from '@uiw/react-md-editor';
 import { useHttp } from '../hooks/http.hook'
+import { useParams, useNavigate } from "react-router-dom";
+
 export const ReviewBlock = (props) => {
 
   const user_id = useSelector((state) => state.user_id)
@@ -19,6 +21,7 @@ export const ReviewBlock = (props) => {
   const [tags, setTags] = useState([])
   const [images, setImages] = useState([])
   const [isLiked, setIsLiked] = useState(false)
+  const history = useNavigate();
   const request = useHttp()
   useEffect(()=> {
     getRating()
@@ -78,8 +81,9 @@ export const ReviewBlock = (props) => {
   ))
   let tagsToRender = tags.map(item => (
     <span
-    key={item.id}
-    className='tag'>{item.tag_value}</span>
+      onClick={() => { history('/', { state: { tag: item.tag_value } })}}
+      key={item.id}
+      className='tag'>{item.tag_value}</span>
   ))
   return (
     <div
@@ -88,9 +92,12 @@ export const ReviewBlock = (props) => {
 
     { !edit ?
       (<Container>
-        <div className="review-header" rating={rating}>
+        <Row className="review-header" rating={rating}>
+        <Col md={7} sm={10}>
           <h3>{props.name}</h3>
-          <div style={{display: "flex"}}>
+        </Col>
+        <Col md={5} sm={10}>
+          <div style={{display: "flex", alignItems: "center"}}>
             {props.all_likes}
             <FontAwesomeIcon
               name='likeButton'
@@ -117,7 +124,8 @@ export const ReviewBlock = (props) => {
                     icon={faPenToSquare}/>) : (<></>)
               }
           </div>
-        </div>
+          </Col>
+        </Row>
         <div>
           {"Category:" + props.category}
         </div>

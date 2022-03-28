@@ -27,6 +27,7 @@ export const LoginComponent = ({setLoginData}) => {
       role: data.role,
     }})
     localStorage.setItem('loginData', JSON.stringify(data));
+    history('/')
   }
 
   const handleLogin = async (googleData) => {
@@ -39,7 +40,6 @@ export const LoginComponent = ({setLoginData}) => {
         'Content-Type': 'application/json',
       },
     }).then(response => response.json()).then(data => {
-      // setLoginData(data);
       dispatch({type: 'CHANGE_ISAUTHENTICATED', payload:{
         isAuthenticated: true,
         email: data.email,
